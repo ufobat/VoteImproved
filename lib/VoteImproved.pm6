@@ -18,7 +18,7 @@ class VoteImproved is Bailador::App {
             return True if self.session<user>;
             return False;
         };
-        $route.get: '/vote/index' => self.curry: 'index';
+        $route.get: '/vote/index' => self.curry: 'vote-index';
         $route.get: '/logout' => self.curry: 'logout';
         # $route.get: Bailador::Route::StaticFile.new: path => / ^ vote \/ <-[\/]> (<[\w\.]+]>)/, dir => $rootdir.child("vote-img/");
 
@@ -26,7 +26,7 @@ class VoteImproved is Bailador::App {
 
         # catch all route
         # self.get: Bailador::Route::StaticFile.new: path => /.*/, dir => $rootdir.child("public");
-        self.get: /.*/ => self.curry: 'index';
+        self.get: /.*/ => self.curry: 'login-get';
     }
 
     method login-get {
@@ -45,11 +45,18 @@ class VoteImproved is Bailador::App {
         self.render: self.master-template: 'logout.tt';
     }
 
-    method index {
-        self.render: self.master-template: 'index.tt';
+    method vote-index {
+        self.render: self.logged-in-template: 'index.tt';
     }
 
     method master-template(Str:D $template, *@param) {
-        self.template: 'master.tt', $!title, self.template: $template, @param;
+        my $inner = self.template: $template, @param;;
+        self.template: 'master.tt', $!title, $inner;
+    }
+
+    method logged-in-template(Str:D $template, *@param) {
+        my $inner = self.template: $template, @param;;
+        my $logged-in = self.template: 'logged-in.tt', $!title, $inner;
+        self.template: 'master.tt', $!title, $logged-in;
     }
 }
