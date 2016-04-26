@@ -88,6 +88,7 @@ class VoteImproved is Bailador::App {
 
             my $session = self.session;
             $session<user> = $user;
+            $session<user-id> = %dbval<id>;
 
             $dbh.dispose if $dbh;
 
@@ -114,12 +115,14 @@ class VoteImproved is Bailador::App {
     }
 
     method vote-listuser {
+        my $session = self.session;
+        my $my-id = $session<user-id>;
         my $dbh = self.get-dbi;
         my $sth = $dbh.prepare("select * from users");
         $sth.execute;
         my @users = $sth.allrows(:array-of-hash);
         $dbh.dispose;
-        self.render: self.logged-in-template: 'vote-listuser.tt', @users;
+        self.render: self.logged-in-template: 'vote-listuser.tt', $my-id, @users;
     }
 
     method vote-deluser {
