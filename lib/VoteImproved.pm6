@@ -29,13 +29,16 @@ class VoteImproved is Bailador::App {
             return False;
         };
         $only-if-loggedin.get: '/vote/index' => self.curry: 'vote-index';
+        $only-if-loggedin.get: '/vote/listuser' => self.curry: 'vote-listuser';
+        $only-if-loggedin.get: '/vote/adduser' => self.curry: 'vote-adduser';
+        $only-if-loggedin.get: '/vote/deluser/:id' => self.curry: 'vote-deluser';
         $only-if-loggedin.get: '/logout' => self.curry: 'logout';
         # $route.get: Bailador::Route::StaticFile.new: path => / ^ vote \/ <-[\/]> (<[\w\.]>+)/, directory => $rootdir.child("vote-img/");
 
         self.add_route: $only-if-loggedin;
 
         # catch all route
-        self.add_route: Bailador::Route::StaticFile.new: path => / (<[\w\.]>+ \/ <[\w\.]>+)/, directory => $!rootdir.child("public");
+        self.add_route: Bailador::Route::StaticFile.new: path => / (<[\w\.]>+ \/ <[\w\.\-]>+)/, directory => $!rootdir.child("public");
         self.get: /.*/ => sub {self.redirect: '/login' };
     }
 
@@ -44,9 +47,27 @@ class VoteImproved is Bailador::App {
          my $dbh = DBIish.connect("SQLite", database => $!sqlite.abspath);
     }
 
+    # Teplate methods
+    method master-template(Str:D $template, *@param) {
+        my $inner = self.template: $template, @param;;
+        self.template: 'master.tt', $!title, $inner;
+    }
+
+    method logged-in-template(Str:D $template, *@param) {
+        my $inner = self.template: $template, @param;
+        my $logged-in = self.template: 'logged-in-master.tt', $!title, $inner;
+        self.template: 'master.tt', $!title, $logged-in;
+    }
+
+    # Routes
     method login-get {
         self.session-delete;
         self.render: self.master-template: 'login.tt';
+    }
+
+    method logout {
+        self.session-delete;
+        self.redirect: '/login';
     }
 
     method login-post() {
@@ -84,23 +105,26 @@ class VoteImproved is Bailador::App {
         }
     }
 
-    method logout {
-        self.session-delete;
-        self.redirect: '/login';
-    }
-
     method vote-index {
         self.render: self.logged-in-template: 'vote-index.tt';
     }
 
-    method master-template(Str:D $template, *@param) {
-        my $inner = self.template: $template, @param;;
-        self.template: 'master.tt', $!title, $inner;
+    method vote-adduser {
+        self.render: self.logged-in-template: 'vote-adduser.tt';
     }
 
-    method logged-in-template(Str:D $template, *@param) {
-        my $inner = self.template: $template, @param;;
-        my $logged-in = self.template: 'logged-in-master.tt', $!title, $inner;
-        self.template: 'master.tt', $!title, $logged-in;
+    method vote-listuser {
+        my $dbh = self.get-dbi;
+        my $sth = $dbh.prepare("select * from users");
+        $sth.execute;
+        my @users = $sth.allrows(:array-of-hash);
+        $dbh.dispose;
+        self.render: self.logged-in-template: 'vote-listuser.tt', @users;
     }
+
+    method vote-deluser {
+        say "deleting user";
+        self.redirect: '/vote/listuser';
+    }
+
 }
