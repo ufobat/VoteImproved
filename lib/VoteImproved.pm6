@@ -20,7 +20,7 @@ class VoteImproved is Bailador::App {
         $!rootdir = $?FILE.IO.parent.parent;
         $!sqlite  = $!rootdir.child('db/voteimproved.db');
         self.location = $!rootdir.child("views").dirname;
-        self.sessions-config.cookie-expiration = 5;
+        self.sessions-config.cookie-expiration = 60;
 
         self.get:  '/login' => self.curry: 'login-get';
         self.post: '/login' => self.curry: 'login-post';
@@ -62,13 +62,11 @@ class VoteImproved is Bailador::App {
             my $sth  = $dbh.prepare("select * from users where name='{$user}';");
             $sth.execute;
             my %dbval = $sth.row(:hash);
-            dd %dbval;
             die X::VoteImproved::LoginError.new: reason => "user not found" unless %dbval<name> eq $user;
             die X::VoteImproved::LoginError.new: reason => "password missmatch "unless bcrypt-match($pass, %dbval<passwd>);
 
             my $session = self.session;
             $session<user> = $user;
-            say "login worked";
 
             $dbh.dispose if $dbh;
 
@@ -88,7 +86,7 @@ class VoteImproved is Bailador::App {
 
     method logout {
         self.session-delete;
-        self.render: self.master-template: 'logout.tt';
+        self.redirect: '/login';
     }
 
     method vote-index {
