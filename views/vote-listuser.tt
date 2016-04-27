@@ -16,7 +16,7 @@
     % next if $user<isactive> == 0;
     <tr>
       % my $id = $user<id>;
-      % my $createdby = %usermap{ $myid };
+      % my $createdby = %usermap{ $id };
       <td><%= $id %></td>
       <td><%= $user<name> %></td>
       <td><%= $user<email> %></td>
