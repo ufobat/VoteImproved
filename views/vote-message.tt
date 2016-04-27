@@ -1,0 +1,13 @@
+% my ($type, $title, $message) = @_;
+% my $class = 'panel panel-default'; 
+% if $type ~~ any('danger', 'info') {
+%     $class = 'panel panel-' ~ $type;
+% }
+<div class="<%= $class %>">
+  <div class="panel-heading">
+    <h3 class="panel-title"><%= $title %></h3>
+  </div> 
+  <div class="panel-body">
+    <%= $message %>
+  </div>
+</div>

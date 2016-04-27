@@ -12,15 +12,18 @@
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/logout">Logout</a></li>
             <li><a href="/vote/index">Vote</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Users <span class="caret"></span></a>
               <ul class="dropdown-menu">
-                <li><a href="/vote/adduser">Add User</a></li>
-                <li><a href="/vote/listuser">List User</a></li>
+                <li><a href="/vote/modifyuser">Modify User</a></li>
+                <li><a href="/vote/adduser">Add New User</a></li>
+                <li><a href="/vote/listuser">List Users</a></li>
               </ul>
             </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="/logout">Logout</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>

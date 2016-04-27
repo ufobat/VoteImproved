@@ -1,0 +1,34 @@
+% my ($myid, @user) = @_;
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Name</th>
+      <th>E-Mail</th>
+      <th>Created at</th>
+      <th>Created by</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    % my %usermap = @user.map({ $_<id> => $_<name> });
+    % for @user -> $user {
+    % next if $user<isactive> == 0;
+    <tr>
+      % my $id = $user<id>;
+      % my $createdby = %usermap{ $myid };
+      <td><%= $id %></td>
+      <td><%= $user<name> %></td>
+      <td><%= $user<email> %></td>
+      <td><%= DateTime.new($user<createdat>).gist %></td>
+      <td><%= $createdby %></td>
+      <td>
+        % if $myid != $id {
+        <a href="/vote/deluser/<%= $id %>">
+          <button type="button" title="Löschen" class="btn btn-default btn-xs"><span class="glyphicon glyphicon-trash"></span></button>
+        </a>
+        % }
+    </tr>
+    % }
+  <tbody>
+</table>
