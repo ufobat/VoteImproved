@@ -22,20 +22,22 @@ class VoteImproved is Bailador::App {
         self.location = $!rootdir.child("views").dirname;
         self.sessions-config.cookie-expiration = 180;
 
-        self.get:  '/login' => self.curry: 'login-get';
+        self.get:  '/login' => sub { self.session-delete; self.master-template: 'login.tt' };
         self.post: '/login' => self.curry: 'login-post';
         my $only-if-loggedin = Bailador::Route.new: path => /.*/, code => sub {
             return True if self.session<user>;
             return False;
         };
-        $only-if-loggedin.get:  '/vote/index'       => self.curry: 'vote-index';
+        $only-if-loggedin.get:  '/vote/index'       => sub { self.logged-in-template: 'vote-index.tt' };
         $only-if-loggedin.get:  '/vote/listuser'    => self.curry: 'vote-listuser';
         $only-if-loggedin.get:  '/vote/deluser/:id' => self.curry: 'vote-deluser';
-        $only-if-loggedin.get:  '/vote/adduser'     => self.curry: 'vote-adduser-get';
+        $only-if-loggedin.get:  '/vote/adduser'     => sub { self.logged-in-template: 'vote-adduser.tt' };
         $only-if-loggedin.post: '/vote/adduser'     => self.curry: 'vote-adduser-post';
-        $only-if-loggedin.get:  '/vote/modifyuser'  => self.curry: 'vote-modifyuser-get';
+        $only-if-loggedin.get:  '/vote/modifyuser'  => sub { self.logged-in-template: 'vote-modifyuser.tt' };
         $only-if-loggedin.post: '/vote/modifyuser'  => self.curry: 'vote-modifyuser-post';
-        $only-if-loggedin.get:  '/logout'           => self.curry: 'logout';
+        $only-if-loggedin.get:  '/vote/addimage'    => sub { self.logged-in-template: 'vote-addimage.tt' };
+        $only-if-loggedin.post: '/vote/addimage'    => self.curry: 'vote-addimage-post';
+        $only-if-loggedin.get:  '/logout'           => sub { self.session-delete; self.redirect: '/login' };
         $only-if-loggedin.add_route: Bailador::Route::StaticFile.new: path => / ^ vote '/' img '/'  (<[\w\.]>+)/, directory => $!rootdir.child("vote-img/");
 
         self.add_route: $only-if-loggedin;
@@ -80,16 +82,6 @@ class VoteImproved is Bailador::App {
     }
 
     # Routes
-    method login-get {
-        self.session-delete;
-        self.master-template: 'login.tt';
-    }
-
-    method logout {
-        self.session-delete;
-        self.redirect: '/login';
-    }
-
     method login-post() {
         my %param = self.request.params();
         try {
@@ -124,14 +116,6 @@ class VoteImproved is Bailador::App {
                 }
             }
         }
-    }
-
-    method vote-index {
-        self.logged-in-template: 'vote-index.tt';
-    }
-
-    method vote-adduser-get {
-        self.logged-in-template: 'vote-adduser.tt';
     }
 
     method vote-adduser-post {
@@ -191,10 +175,6 @@ class VoteImproved is Bailador::App {
         }
     }
 
-    method vote-modifyuser-get {
-        self.logged-in-template: 'vote-modifyuser.tt';
-    }
-
     method vote-modifyuser-post {
         my $session = self.session;
         my $my-id = $session<user-id>;
@@ -236,6 +216,22 @@ class VoteImproved is Bailador::App {
             else {
                 self.vote-message: type => 'danger', 'Nothing to Change';
             }
+        }
+    }
+
+    method vote-addimage-post {
+        my $session = self.session;
+        my $my-id = $session<user-id>;
+        my %param = self.request.params();
+        my $dbh  = self.get-dbi;
+        try {
+            LEAVE { $dbh.dispose };
+            CATCH {
+                default {
+                    self.vote-message: type => 'danger', .message;
+                }
+            }
+            self.vote-message: %param.perl;
         }
     }
 }
