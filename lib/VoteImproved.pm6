@@ -92,8 +92,8 @@ class VoteImproved is Bailador::App {
             die X::VoteImproved::LoginError.new: reason => "user invalid" unless $user ~~ / \w+ /;
             #my $dbh will leave { .dispose } = self.get-dbi;
             $dbh  = self.get-dbi;
-            my $sth  = $dbh.prepare("SELECT * FROM users WHERE name='{$user}' AND isactive=1;");
-            $sth.execute;
+            my $sth  = $dbh.prepare("SELECT * FROM users WHERE name= ? AND isactive=1");
+            $sth.execute($user);
             my %dbval = $sth.row(:hash);
             die X::VoteImproved::Error.new: reason => "user not found" unless %dbval<name>:exists;
             die X::VoteImproved::Error.new: reason => "password missmatch "unless bcrypt-match($pass, %dbval<passwd>);
@@ -129,7 +129,6 @@ class VoteImproved is Bailador::App {
             my $createdby = $session<user-id>;
             my $passhash  = bcrypt-hash($pass);
 
-            my $sql = "INSERT INTO users values(NULL, '$user', '$passhash', '$mail', $createdat, $createdby, 1);";
             my $dbh = self.get-dbi;
 
             try {
@@ -139,7 +138,8 @@ class VoteImproved is Bailador::App {
                         self.vote-message: type => 'danger', .message;
                     }
                 };
-                my $sth = $dbh.do($sql);
+                my $sth = $dbh.prepare("INSERT INTO users values(NULL, ?, ?, ?, ?, ?, 1)");
+                $sth.execute($user, $passhash, $mail, $createdat, $createdby);
             }
         }
         self.vote-message: 'Added user';
@@ -164,8 +164,10 @@ class VoteImproved is Bailador::App {
             my $session = self.session;
             my $my-id = $session<user-id>;
             die X::VoteImproved::Error: reason => 'you can not delete yourself' if $my-id == $id;
-            my $sql = 'UPDATE users SET isactive = 0 WHERE id = ' ~ $id;
-            $dbh.do($sql);
+            my $sql = 'UPDATE users SET isactive = 0 WHERE id = ?';
+            my $sth = $dbh.prepare($sql);
+            $sth.execute($id);
+
             self.vote-message: 'Deleted user ' ~ $id;
             CATCH {
                 default {
@@ -190,8 +192,8 @@ class VoteImproved is Bailador::App {
 
             die X::VoteImproved::Error.new: reason => "old password is requird" unless %param<oldpasswd>:exists and %param<oldpasswd> ne "";
 
-            my $sth  = $dbh.prepare("select * from users where id={$my-id};");
-            $sth.execute;
+            my $sth = $dbh.prepare("select * from users where id = ?");
+            $sth.execute($my-id);
             my %dbval = $sth.row(:hash);
 
             die X::VoteImproved::Error.new: reason => "password missmatch "unless bcrypt-match(%param<oldpasswd>, %dbval<passwd>);
@@ -200,14 +202,16 @@ class VoteImproved is Bailador::App {
             my @changed-what;
             if %param<newpasswd>:exists and %param<newpasswd>.chars > 1  {
                 my $passhash  = bcrypt-hash(%param<newpasswd>);
-                my $sql = "UPDATE users SET passwd = '$passhash' WHERE id = $my-id;";
-                $dbh.do($sql);
+                my $sql = "UPDATE users SET passwd = ? WHERE id = ?";
+                my $sth = $dbh.prepare($sql);
+                $sth.execute($passhash, $my-id);
                 @changed-what.push('password');
             }
             # email
             if %param<newemail>:exists and %param<newemail>.chars > 1 {
-                my $sql = "UPDATE users SET email = '{ %param<newemail> }' WHERE id = $my-id;";
-                $dbh.do($sql);
+                my $sql = "UPDATE users SET email = ? WHERE id = ?";
+                my $sth = $dbh.do($sql);
+                $sth.execute(%param<newemail>, $my-id);
                 @changed-what.push('email');
             }
             if @changed-what.elems > 0 {
