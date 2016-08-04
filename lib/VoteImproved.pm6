@@ -5,6 +5,7 @@ use Bailador::Route;
 use Bailador::Route::StaticFile;
 use DBIish;
 use Crypt::Bcrypt;
+use UUID;
 
 class X::VoteImproved::Error is Exception {
     has Str $.reason is required;
@@ -13,12 +14,15 @@ class X::VoteImproved::Error is Exception {
 
 class VoteImproved is Bailador::App {
     has IO::Path $!rootdir;
-    has $!title = "Vote Improved";
-    has $!sqlite;
+    has Str $!title = "Vote Improved";
+    has IO::Path $!sqlite;
+    has IO::Path $!imagedir;
 
     submethod BUILD(|) {
-        $!rootdir = $?FILE.IO.parent.parent;
-        $!sqlite  = $!rootdir.child('db/voteimproved.db');
+        $!rootdir  = $?FILE.IO.parent.parent;
+        $!sqlite   = $!rootdir.child('db/voteimproved.db');
+        $!imagedir = $!rootdir.child('images/');
+
         self.location = $!rootdir.child("views").dirname;
         self.sessions-config.cookie-expiration = 180;
 
@@ -227,15 +231,32 @@ class VoteImproved is Bailador::App {
         my $session = self.session;
         my $my-id = $session<user-id>;
         my %param = self.request.params();
+        my $upload = %param<file>;
         my $dbh  = self.get-dbi;
         try {
+            $upload or die "no valid upload";
+
+            my $uuid = self.get-uuid($dbh);
+            self.vote-message: %param.perl;
+
             LEAVE { $dbh.dispose };
             CATCH {
                 default {
                     self.vote-message: type => 'danger', .message;
                 }
             }
-            self.vote-message: %param.perl;
+        }
+    }
+
+    method get-uuid($dbh) {
+        my $sql = 'SELECT EXISTS(SELECT 1 FROM images WHERE filename = ? LIMIT 1)';
+        loop {
+            my $uuid = UUID.new;
+            next if $!imagedir.child($uuid).e;
+            my $sth = $dbh.prepare($sql);
+            $sth.execute(~$uuid);
+            next if 1 == $sth.row();
+            return $uuid;
         }
     }
 }

@@ -3,7 +3,7 @@
     "version"     : "*",
     "perl"        : "6.c",
     "description" : "A Picture Vote WebApp",
-    "depends"     : [ "Bailador", "DBIish", "Crypt::Bcrypt"],
+    "depends"     : [ "Bailador", "DBIish", "Crypt::Bcrypt", "UUID"],
     "provides" : {
         "VoteImproved"                                : "lib/VoteImproved.pm6"
     },
