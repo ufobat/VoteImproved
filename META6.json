@@ -1,6 +1,6 @@
 {
     "name"        : "VoteImproved",
-    "version"     : "*",
+    "version"     : "0.0.1",
     "perl"        : "6.c",
     "description" : "A Picture Vote WebApp",
     "depends"     : [ "Bailador", "DBIish", "Crypt::Bcrypt"],
