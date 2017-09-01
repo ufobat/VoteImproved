@@ -1,18 +1,37 @@
 {
-    "name"        : "VoteImproved",
-    "version"     : "0.0.1",
-    "perl"        : "6.c",
-    "description" : "A Picture Vote WebApp",
-    "depends"     : [ "Bailador", "DBIish", "Crypt::Bcrypt"],
-    "provides" : {
-        "VoteImproved"                                : "lib/VoteImproved.pm6"
-    },
-    "authors" : [
-        "Martin Barth (ufobat)"
-    ],
-    "support" : {
-        "bugtracker" : "https://github.com/ufobat/VoteImproved/issues",
-        "source"     : "git://github.com/ufobat/VoteImproved.git"
-    },
-    "source-url"  : "git://github.com/ufobat/VoteImproved.git"
+  "authors" : [
+    "Martin Barth (ufobat)"
+  ],
+  "build-depends" : [ ],
+  "depends" : [
+    "Bailador",
+    "DBIish",
+    "Crypt::Bcrypt",
+    "IoC",
+    "UUID",
+    "Image::Resize"
+  ],
+  "description" : "A Picture Vote WebApp",
+  "license" : "NOASSERTION",
+  "name" : "VoteImproved",
+  "perl" : "6.c",
+  "provides" : {
+    "VoteImproved" : "lib/VoteImproved.pm6",
+    "VoteImproved::Controller::Image" : "lib/VoteImproved/Controller/Image.pm6",
+    "VoteImproved::Controller::User" : "lib/VoteImproved/Controller/User.pm6",
+    "VoteImproved::Helper" : "lib/VoteImproved/Helper.pm6",
+    "VoteImproved::IoC" : "lib/VoteImproved/IoC.pm6",
+    "VoteImproved::Model::Image" : "lib/VoteImproved/Model/Image.pm6",
+    "VoteImproved::Model::User" : "lib/VoteImproved/Model/User.pm6",
+    "X::VoteImproved::Error" : "lib/X/VoteImproved/Error.pm6"
+  },
+  "resources" : [ ],
+  "source-url" : "git://github.com/ufobat/VoteImproved.git",
+  "support" : {
+    "bugtracker" : "https://github.com/ufobat/VoteImproved/issues",
+    "source" : "git://github.com/ufobat/VoteImproved.git"
+  },
+  "tags" : [ ],
+  "test-depends" : [ ],
+  "version" : "0.0.2"
 }
