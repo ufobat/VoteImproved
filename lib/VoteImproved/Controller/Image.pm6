@@ -34,4 +34,9 @@ class VoteImproved::Controller::Image {
         my @images = $.model.get-all-images();
         return template 'vote-listimages', @images;
     }
+
+    method show-image($id) {
+        my $image = $.model.get-image($id.Int);
+        return template 'vote-showimage', $image;
+    }
 }

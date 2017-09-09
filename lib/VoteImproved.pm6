@@ -55,6 +55,10 @@ class VoteImproved {
                 service => 'ControllerImage',
                 to      => 'list-all-images',
             };
+            get '/vote/showimage/:id'    => {
+                service => 'ControllerImage',
+                to      => 'show-image',
+            };
             get  '/logout'           => sub {
                 session-delete;
                 redirect '/login';

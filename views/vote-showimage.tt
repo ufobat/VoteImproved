@@ -1,0 +1,4 @@
+% my ($image) = @_;
+<div class="float-left">
+<img src="/vote/img/<%= $image<image-name> %> " alt="<%= $image<uuid> %>" class="img-rounded" />
+</div>

@@ -50,9 +50,30 @@ class VoteImproved::Model::Image {
             }
         }
         for @users -> $image {
-            $image<image-name> = uuid-to-imgname($image<uuid>);
-            $image<tn-name>    = uuid-to-tnname($image<uuid>);
+            enrich-image($image);
         }
         return @users;
+    }
+
+    my sub enrich-image($image) {
+        $image<image-name> = uuid-to-imgname($image<uuid>);
+        $image<tn-name>    = uuid-to-tnname($image<uuid>);
+        return $image;
+    }
+
+    method get-image(Int $id) {
+        my $sql = 'Select * from images where id=?';
+        my $image;
+        try {
+            my $sth = $.dbh.prepare($sql);
+            $sth.execute($id);
+            $image = $sth.row(:hash);
+            CATCH {
+                default {
+                    die X::VoteImproved::Error.new(reason => 'could not fetch image ' ~ .message);
+                }
+            }
+        }
+        return enrich-image($image);
     }
 }
