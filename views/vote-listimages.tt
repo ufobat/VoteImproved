@@ -1,0 +1,6 @@
+% my (@images) = @_;
+<div class="float-left">
+% for @images -> $image {
+    <img src="<%= 'img/' ~ $image<tn-name> %> " alt="<%= $image<uuid> %>" class="img-thumbnail" />
+% }
+</div>

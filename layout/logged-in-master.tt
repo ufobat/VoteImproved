@@ -36,9 +36,12 @@
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Vote <span class="caret"></span></a>
               <ul class="dropdown-menu">
+                <!--
                 <li><a href="/vote/vote">Vote !!!</a></li>
-                <li><a href="/vote/addimage">Upload Image</a></li>
                 <li><a href="/vote/addurl">Upload URL</a></li>
+                -->
+                <li><a href="/vote/listimages">Show Images</a></li>
+                <li><a href="/vote/addimage">Upload Image</a></li>
               </ul>
             </li>
             <li class="dropdown">

@@ -29,4 +29,9 @@ class VoteImproved::Controller::Image {
             }
         }
     }
+
+    method list-all-images {
+        my @images = $.model.get-all-images();
+        return template 'vote-listimages', @images;
+    }
 }

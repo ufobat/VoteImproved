@@ -51,11 +51,15 @@ class VoteImproved {
                 service => 'ControllerImage',
                 to      => 'add-image',
             };
+            get '/vote/listimages'    => {
+                service => 'ControllerImage',
+                to      => 'list-all-images',
+            };
             get  '/logout'           => sub {
                 session-delete;
                 redirect '/login';
             };
-            static-dir / ^ vote '/' img '/' (<[\w\.]>+) / => "vote-img/";
+            static-dir / ^ '/' vote '/' img '/' ( <[ \w \- \_ \. ]>+ ) / => "img-store/";
         }
         static-dir / (<[\w\.]>+ '/' <[\w\.\-]>+)/ => 'public/';
         get / ^ '/' [ $ || 'vote' || 'logout' ] / =>  sub {
