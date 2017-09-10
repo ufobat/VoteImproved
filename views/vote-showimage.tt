@@ -5,4 +5,9 @@
     <input id="rating-id" name="rating-name" type="number" class="rating" data-min="0" data-max="5" data-size="md" data-rtl="false">
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
+<script>
+    $('#rating-id').on('rating.change', function(event, value, caption) {
+        change_image_rating(value, <%= $image<id> %>);
+    });
+</script>
 </div>
