@@ -76,4 +76,23 @@ class VoteImproved::Model::Image {
         }
         return enrich-image($image);
     }
+
+    method vote-image(Int $imageid, Int $userid, Num $rating) {
+        my $sql = 'select id from votes where imageid = ? and userid = ?';
+        try {
+            my $sth = $.dbh.prepare($sql);
+            $sth.execute($imageid, $userid);
+            my ($vote-id) = $sth.row();
+
+            if $vote-id {
+                my $update-sql = 'update votes set rating = ? where id = ?';
+                $sth = $.dbh.prepare($update-sql);
+                $sth.execute($rating, $vote-id);
+            } else {
+                my $insert-sql = 'insert into votes values(NULL,?,?,?)';
+                $sth = $.dbh.prepare($insert-sql);
+                $sth.execute($imageid, $userid, $rating, DateTime.now.posix);
+            }
+        }
+    }
 }

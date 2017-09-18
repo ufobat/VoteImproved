@@ -59,6 +59,10 @@ class VoteImproved {
                 service => 'ControllerImage',
                 to      => 'show-image',
             };
+            post '/vote/vote_image/:id' => {
+                service => 'ControllerImage',
+                to      => 'vote-image',
+            };
             get  '/logout'           => sub {
                 session-delete;
                 redirect '/login';

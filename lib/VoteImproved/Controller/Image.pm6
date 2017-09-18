@@ -39,4 +39,11 @@ class VoteImproved::Controller::Image {
         my $image = $.model.get-image($id.Int);
         return template 'vote-showimage', $image;
     }
+
+    method vote-image($id) {
+        my %param = request.params();
+        my $my-id = session<user-id>;
+        my $rating = %param<rating>.Num;
+        $.model.vote-image($id.Int, $my-id, $rating);
+    }
 }
