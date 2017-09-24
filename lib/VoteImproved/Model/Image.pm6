@@ -84,14 +84,20 @@ class VoteImproved::Model::Image {
             $sth.execute($imageid, $userid);
             my ($vote-id) = $sth.row();
 
+            my $epoch = DateTime.now.posix;
             if $vote-id {
-                my $update-sql = 'update votes set rating = ? where id = ?';
+                my $update-sql = 'update votes set rating = ?, epoch = ? where id = ?';
                 $sth = $.dbh.prepare($update-sql);
-                $sth.execute($rating, $vote-id);
+                $sth.execute($rating, $epoch, $vote-id);
             } else {
-                my $insert-sql = 'insert into votes values(NULL,?,?,?)';
+                my $insert-sql = 'insert into votes values(NULL,?,?,?,?)';
                 $sth = $.dbh.prepare($insert-sql);
-                $sth.execute($imageid, $userid, $rating, DateTime.now.posix);
+                $sth.execute($imageid, $userid, $rating, $epoch);
+            }
+            CATCH {
+                default {
+                    die X::VoteImproved::Error.new(reason => 'could not vote image ' ~ .message);
+                }
             }
         }
     }

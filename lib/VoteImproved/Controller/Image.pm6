@@ -45,5 +45,6 @@ class VoteImproved::Controller::Image {
         my $my-id = session<user-id>;
         my $rating = %param<rating>.Num;
         $.model.vote-image($id.Int, $my-id, $rating);
+        return redirect '/vote/index';
     }
 }
