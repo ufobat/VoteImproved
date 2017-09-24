@@ -26,8 +26,3 @@ sub vote-message($message, Str :$type = 'default', Str :$title, Str :$layout) is
         return template 'vote-message.tt', $type, $header, $message.Str;
     }
 }
-
-sub get-dbi {
-    state $sqlite = app.location.IO.child('db/voteimproved.db');
-    return DBIish.connect("SQLite", database => $sqlite.abspath);
-}
